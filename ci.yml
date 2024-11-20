@@ -1,0 +1,27 @@
+stages:
+  - build
+
+variables:
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode --errors --fail-at-end"
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+# 缓存 Maven 依赖以加快构建速度
+cache:
+  key: "${CI_PROJECT_ID}"
+  paths:
+    - .m2/repository
+
+before_script:
+  - echo "Setting up Maven environment"
+  - 'export PATH="$PATH:/usr/local/maven/bin"'
+  - 'mkdir -p .m2/repository'
+
+build:
+  stage: build
+  image: maven:3.9.4-openjdk-17
+  script:
+    - echo "Building the project"
+    - mvn $MAVEN_CLI_OPTS clean compile
+  artifacts:
+    paths:
+      - target/
